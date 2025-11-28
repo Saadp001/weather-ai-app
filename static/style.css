@@ -1,0 +1,326 @@
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #6fb1fc, #4364f7, #3f2b96);
+        color: #333;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        background: #e8effd;
+        padding: 40px;
+        width: 90%;
+        max-width: 1100px;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        text-align: center;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 600;
+        margin: 0 auto 28px;
+        color: #1a1a1a;
+    }
+
+    /* Search Box */
+    .search-box {
+        margin-bottom: 20px;
+    }
+
+    .search-box input[type="text"] {
+        width: 70%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #aaa;
+        font-size: 16px;
+        outline: none;
+    }
+
+    .search-box input[type="text"]:focus {
+        border-color: #4a90e2;
+    }
+
+    .search-box input[type="submit"] {
+        padding: 12px 15px;
+        border: none;
+        background: #3f2b96;
+        color: white;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-left: 8px;
+    }
+
+    .search-box input[type="submit"]:hover {
+        background: #4a90e2;
+    }
+
+    /* contain weather card and ai insight card */
+    .weather-layout {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 900px;   /* ⬅ bigger row */
+        margin: 0 auto;     /* center the row */
+    }
+
+
+    /* weather card  */
+    .weather-left {
+        position: relative;        /* needed so child absolute positions are relative to card */
+        background: linear-gradient(135deg, #8fd3fe, #6ea8fe);
+        padding: 40px 36px;
+        border-radius: 20px;
+        color: #0d0d0d;
+        width: 100%;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        text-align: center;
+        overflow: visible;        /* ensure icon isn't clipped */
+    }
+
+    /* put icon inside the card, behind the content */
+    .weather-left .weather-icon {
+        position: absolute;
+        right: 18px;              /* inside the card */
+        top: 18px;                /* inside the card */
+        width: 120px;             /* slightly smaller so it doesn't dominate */
+        opacity: 1;
+        pointer-events: none;
+        z-index: 0;               /* behind the content */
+    }
+
+    /* ensure the card content sits above the icon */
+    .weather-left .card-content {
+        position: relative;
+        z-index: 1;
+    }    
+
+
+    /* ai insights card */
+    .weather-right {
+        max-height: calc(72vh);   /* won't exceed viewport much */
+        overflow: hidden;
+        position: relative;
+        background: #9caaaf;
+        padding: 40px 35px;
+        border-radius: 22px;
+        box-shadow: 0 12px 34px rgba(0,0,0,0.10);
+        width: 100%;
+        color: #222;
+        line-height: 1.7;
+    }
+
+    /* ai-content list styling */
+    /* scroll area for content inside AI card (keeps header/button visible) */
+    .ai-content {
+        overflow-y: auto;
+        max-height: calc(72vh - 140px); /* leaves space for title and button */
+        padding-right: 8px;
+    }
+
+    .ai-section h3 {
+        font-size: 18px;
+        margin: 16px 0 6px;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .ai-line {
+        margin: 4px 0 12px;
+        font-size: 15px;
+        line-height: 1.55;
+    }
+
+
+    .ai-list {
+        list-style: none;
+        padding-left: 0;
+        margin: 8px 0 0 0;
+    }
+    .ai-list li {
+        padding-left: 28px;
+        margin: 10px 0;
+        position: relative;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+        /* custom bullet (emoji-like small dot) */
+    .ai-list li::before{
+        content: "🔸";
+        position: absolute;
+        left: 0;
+        top: 1px;
+        font-size: 14px;
+    }
+
+
+    .weather-right h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 18px;
+        text-align: center;
+    }
+
+    .weather-right p, 
+    .weather-right div {
+        margin-bottom: 10px;
+    }
+
+
+
+    /* generate insights button  */
+    #generate-ai {
+        background: #5335d9;
+        color: #fff;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-size: 15px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: 0.2s ease;
+    }
+
+    #generate-ai:hover {
+        background: #6a4df4;
+        transform: translateY(-2px);
+    }
+
+
+    .weather-card h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 600;
+    }
+
+    .temp {
+        margin-top: 15px;
+        font-size: 36px;
+        font-weight: bold;
+    }
+
+    .cond {
+        margin-top: 5px;
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .date {
+        margin-top: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .extra {
+    font-size: 16px;
+    margin-top: 6px;
+    color: #222;
+    }
+
+
+
+
+    /* layout: allow wrapping on narrow viewports and use more available width */
+    .weather-layout {
+        display: flex;
+        gap: 48px;
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap; /* important so panels don't overflow horizontally */
+        box-sizing: border-box;
+    }
+
+        /* left (weather) card slightly smaller than right on wide screens */
+    .weather-left {
+        background: linear-gradient(135deg, #89f7fe, #66a6ff);
+        flex: 1.1 1 420px;   /* flex-grow flex-shrink flex-basis */
+        min-width: 320px;
+        max-width: 520px;
+    }
+
+        /* right (AI) card bigger but constrained */
+    .weather-right {
+        flex: 1.4 1 480px;
+        min-width: 300px;
+        max-width: 680px;
+        background: linear-gradient(135deg, #a8f6fc, #9bb2d1);
+        padding: 32px;
+        border-radius: 22px;
+        box-shadow: 0 12px 34px rgba(0,0,0,0.10);
+        color: #222;
+        line-height: 1.6;
+        box-sizing: border-box;
+        /* KEEP card visible: limit height and make inner area scrollable */
+        max-height: calc(70vh); /* won't grow beyond viewport height */
+        overflow: hidden;       /* hide outer overflow; inner scroll below */
+        position: relative;
+    }
+
+        /* inner scroll area for AI content (keeps header & button visible) */
+    .ai-content {
+        overflow-y: auto;
+        max-height: calc(70vh - 120px); /* leave room for title/button */
+        padding-right: 8px;
+    }
+
+        /* polish text / bullets */
+    .weather-right h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 18px;
+        text-align: center;
+    }
+
+    #generate-ai {
+        display: inline-block;
+        background: #5335d9;
+        color: #fff;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-size: 15px;
+        cursor: pointer;
+        margin: 8px auto 18px;
+        transition: 0.16s ease;
+    }
+
+        #generate-ai:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        #generate-ai:hover { transform: translateY(-2px); }
+
+        /* nicer bullets and emoji spacing */
+    .weather-right .ai-content ul {
+        padding-left: 20px;
+        margin: 8px 0 18px;
+    }
+
+    .weather-right .ai-content li {
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+        /* responsive: stack neatly on small screens */
+    @media (max-width: 900px) {
+        .container { padding: 30px 18px; }
+        .weather-layout { gap: 22px; }
+        .weather-left, .weather-right { flex: 1 1 100%; max-width: 100%; }
+        .weather-right { max-height: none; overflow: visible; }
+        .ai-content { max-height: none; overflow: visible; }
+    }
+
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }

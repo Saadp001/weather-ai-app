@@ -1,17 +1,59 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import requests
 from dotenv import load_dotenv
 load_dotenv()
+from google import genai
 import os
 
 
 app = Flask(__name__)
 
-# Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///weather.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# configure api of gemini for ai use 
+
+
+#will get the data from route /ai-insights
+def generate_ai_insights(city, temperature, condition, humidity, wind):
+    prompt = f"""
+    You are a friendly weather assistant. Using the data below, generate a SHORT and CLEAN 3-section response:
+
+    City: {city}
+    Temperature: {temperature}°C
+    Condition: {condition}
+    Humidity: {humidity}%
+    Wind: {wind} m/s
+
+    FORMAT EXACTLY LIKE THIS (no extra lines):
+
+    🌤️ **Weather in {city}:**
+    • One fun, simple sentence about the weather.
+
+    🧭 **Activity Tip:**
+    • One short idea based on the weather.
+
+    ⚠️ **Alert:**
+    • Give a warning ONLY if needed.
+    • If no risks → say: "No major risks today 🌈".
+
+    Keep it short, friendly, and emoji-friendly.
+    """
+
+
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))    # storing gemini key inside client 
+
+    # api calling to gemini and storing the response/output in response
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+
+    return response.text
+
+# Database 
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")  # configure sqlalchemy(orm) db to postgressql
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # Model
@@ -31,6 +73,9 @@ class MyTask(db.Model):
 
     def __repr__(self):
         return f"<Task {self.city_ofdb}>"
+
+with app.app_context():
+    db.create_all()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -95,8 +140,23 @@ def index():
     return render_template("index.html", task=task)
 
 
+#will get data from js 
+@app.route('/ai-insights', methods=['POST'])
+def ai_insights():
+    #storing the values in diff variables this variables are not connected to flask other variables 
+    #we are just creating new variables inside this route to store teh data 
+    city = request.form.get("city")
+    temperature = request.form.get("temperature")
+    condition = request.form.get("condition")
+    humidity = request.form.get("humidity")
+    wind = request.form.get("wind")
+
+# giving the values through variables of this route to teh function and calling it and then storing the ans in insights
+    insights = generate_ai_insights(city, temperature, condition, humidity, wind)
+
+    return jsonify({"insights": insights})
+#now this will return to the js and then js will show the output to webpage 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+
     app.run(debug=True)
