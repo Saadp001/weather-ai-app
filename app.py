@@ -81,71 +81,67 @@ with app.app_context():
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-    if request.method == "POST":
-        city_name = request.form["city"]
-        
-        # 1. Check if city exists in DB
-        new_task = MyTask.query.filter_by(city_ofdb=city_name).first()
-
-        # 2. If not found → call API and store
-        if not new_task:
-        # Weather API
-            API_KEY = os.getenv("OPENWEATHER_API_KEY")
-
-            geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1&appid={API_KEY}"
-            geo_res = requests.get(geo_url).json()
-
-            if not geo_res:
-                return render_template("index.html", error="City not found!", task=None)
-
-            lat = geo_res[0]["lat"]
-            lon = geo_res[0]["lon"]
-
-            weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}"
-            data = requests.get(weather_url).json()
+    # ---------------------- GET REQUEST ----------------------
+    if request.method == "GET":
+        # Always show empty page on first load
+        return render_template("index.html", task=None, error=None)
 
 
-        # url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name},&appid={API_KEY}"
-        # response = requests.get(url)
-        # data = response.json()
+    # ---------------------- POST REQUEST ----------------------
+    city_name = request.form.get("city")
 
-        # Handle city not found
-            if data.get("cod") != 200:
-                return render_template("index.html", task=None, error="City not found!")
+    # 1. Check if city exists in DB
+    task = MyTask.query.filter_by(city_ofdb=city_name).first()
 
-        # Extract required data
-            temperature = data['main']['temp'] - 273.15
-            condition = data['weather'][0]['main']
-            icon_code = data['weather'][0]['icon']
-            humidity = data["main"]["humidity"]
-            wind = data["wind"]["speed"]
-            sunrise = datetime.fromtimestamp(data["sys"]["sunrise"]).strftime("%H:%M")
-            sunset = datetime.fromtimestamp(data["sys"]["sunset"]).strftime("%H:%M")
+    # 2. If not in DB → fetch from API and save
+    if not task:
 
+        API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
-        # Create ONE database row
-            new_task = MyTask(
-    
-                city_ofdb = city_name,
-                temperature_ofdb = temperature,
-                condition_ofdb = condition,
-                icon_ofdb = icon_code,
-                humidity_ofdb = humidity,
-                wind_ofdb = wind,
-                sunrise_ofdb = sunrise,
-                sunset_ofdb = sunset
-            )
+        # GEO API
+        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1&appid={API_KEY}"
+        geo_res = requests.get(geo_url).json()
 
-            db.session.add(new_task)
-            db.session.commit()
+        if not geo_res:
+            return render_template("index.html", task=None, error="City not found!")
 
-        return render_template("index.html", new_task=new_task)
+        lat = geo_res[0]["lat"]
+        lon = geo_res[0]["lon"]
 
-    # GET → shows nothing at first 
-    # task = MyTask.query.order_by(MyTask.id.desc()).first()
-    # return render_template("index.html", task=none)
-        # 3. Return page with this city's data
-    return render_template("index.html", new_task=None)
+        # WEATHER API
+        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}"
+        data = requests.get(weather_url).json()
+
+        if data.get("cod") != 200:
+            return render_template("index.html", task=None, error="City not found!")
+
+        # Extract values
+        temperature = data['main']['temp'] - 273.15
+        condition = data['weather'][0]['main']
+        icon_code = data['weather'][0]['icon']
+        humidity = data["main"]["humidity"]
+        wind = data["wind"]["speed"]
+        sunrise = datetime.fromtimestamp(data["sys"]["sunrise"]).strftime("%H:%M")
+        sunset = datetime.fromtimestamp(data["sys"]["sunset"]).strftime("%H:%M")
+
+        # Create new DB row
+        task = MyTask(
+            city_ofdb=city_name,
+            temperature_ofdb=temperature,
+            condition_ofdb=condition,
+            icon_ofdb=icon_code,
+            humidity_ofdb=humidity,
+            wind_ofdb=wind,
+            sunrise_ofdb=sunrise,
+            sunset_ofdb=sunset
+        )
+
+        db.session.add(task)
+        db.session.commit()
+
+    # Show only the city user asked for
+    return render_template("index.html", task=task, error=None)
+
 
 
 #will get data from js 
