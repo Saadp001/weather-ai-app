@@ -139,13 +139,13 @@ def index():
             db.session.add(new_task)
             db.session.commit()
 
-        # return redirect("/")
+        return render_template("index.html", new_task=new_task)
 
     # GET → shows nothing at first 
     # task = MyTask.query.order_by(MyTask.id.desc()).first()
     # return render_template("index.html", task=none)
         # 3. Return page with this city's data
-        return render_template("index.html", new_task=new_task)
+    return render_template("index.html", new_task=None)
 
 
 #will get data from js 
