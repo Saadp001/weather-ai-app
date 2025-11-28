@@ -83,21 +83,26 @@ def index():
 
     if request.method == "POST":
         city_name = request.form["city"]
+        
+        # 1. Check if city exists in DB
+        new_task = MyTask.query.filter_by(city_ofdb=city_name).first()
 
+        # 2. If not found → call API and store
+        if not new_task:
         # Weather API
-        API_KEY = os.getenv("OPENWEATHER_API_KEY")
+            API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
-        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1&appid={API_KEY}"
-        geo_res = requests.get(geo_url).json()
+            geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1&appid={API_KEY}"
+            geo_res = requests.get(geo_url).json()
 
-        if not geo_res:
-            return render_template("index.html", error="City not found!", task=None)
+            if not geo_res:
+                return render_template("index.html", error="City not found!", task=None)
 
-        lat = geo_res[0]["lat"]
-        lon = geo_res[0]["lon"]
+            lat = geo_res[0]["lat"]
+            lon = geo_res[0]["lon"]
 
-        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}"
-        data = requests.get(weather_url).json()
+            weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}"
+            data = requests.get(weather_url).json()
 
 
         # url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name},&appid={API_KEY}"
@@ -105,40 +110,42 @@ def index():
         # data = response.json()
 
         # Handle city not found
-        if data.get("cod") != 200:
-            return render_template("index.html", task=None, error="City not found!")
+            if data.get("cod") != 200:
+                return render_template("index.html", task=None, error="City not found!")
 
         # Extract required data
-        temperature = data['main']['temp'] - 273.15
-        condition = data['weather'][0]['main']
-        icon_code = data['weather'][0]['icon']
-        humidity = data["main"]["humidity"]
-        wind = data["wind"]["speed"]
-        sunrise = datetime.fromtimestamp(data["sys"]["sunrise"]).strftime("%H:%M")
-        sunset = datetime.fromtimestamp(data["sys"]["sunset"]).strftime("%H:%M")
+            temperature = data['main']['temp'] - 273.15
+            condition = data['weather'][0]['main']
+            icon_code = data['weather'][0]['icon']
+            humidity = data["main"]["humidity"]
+            wind = data["wind"]["speed"]
+            sunrise = datetime.fromtimestamp(data["sys"]["sunrise"]).strftime("%H:%M")
+            sunset = datetime.fromtimestamp(data["sys"]["sunset"]).strftime("%H:%M")
 
 
         # Create ONE database row
-        new_task = MyTask(
+            new_task = MyTask(
+    
+                city_ofdb = city_name,
+                temperature_ofdb = temperature,
+                condition_ofdb = condition,
+                icon_ofdb = icon_code,
+                humidity_ofdb = humidity,
+                wind_ofdb = wind,
+                sunrise_ofdb = sunrise,
+                sunset_ofdb = sunset
+            )
 
-            city_ofdb = city_name,
-            temperature_ofdb = temperature,
-            condition_ofdb = condition,
-            icon_ofdb = icon_code,
-            humidity_ofdb = humidity,
-            wind_ofdb = wind,
-            sunrise_ofdb = sunrise,
-            sunset_ofdb = sunset
-        )
+            db.session.add(new_task)
+            db.session.commit()
 
-        db.session.add(new_task)
-        db.session.commit()
+        # return redirect("/")
 
-        return redirect("/")
-
-    # GET → show latest search only
-    task = MyTask.query.order_by(MyTask.id.desc()).first()
-    return render_template("index.html", task=task)
+    # GET → shows nothing at first 
+    # task = MyTask.query.order_by(MyTask.id.desc()).first()
+    # return render_template("index.html", task=none)
+        # 3. Return page with this city's data
+        return render_template("index.html", new_task=new_task)
 
 
 #will get data from js 
