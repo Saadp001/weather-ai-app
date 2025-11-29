@@ -102,7 +102,7 @@ The app uses **PostgreSQL for caching**, **reducing API calls**, and provides a 
 ### 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/weather-ai-app.git
+git clone https://github.com/Saadp001/weather-ai-app.git
 cd weather-ai-app
 ```
 
