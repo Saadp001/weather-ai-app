@@ -46,6 +46,8 @@
 
 
   <!--   right side ai insights -->
+        
+        {% if task %}   <!--  by doing so this side will be hidden after user enter and will be shown after enters city -->
         <div class="weather-right" id="ai-panel">
             <h2>AI Weather Insights</h2>
             <div style="text-align:center;">
@@ -62,8 +64,9 @@
                 <li>⚠️ <strong>Alert:</strong> No major risks today 🌈</li>
                 </ul>
                 -->
-            </div>
+            </div>        
         </div>
+        {% endif %}
 
 
         
